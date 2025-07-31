@@ -33,7 +33,8 @@ st.markdown("""
     }
     .logo-container {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
         animation: bounce 2s infinite;
         margin-bottom: 1rem;
     }
@@ -55,6 +56,21 @@ st.markdown("""
         color: #6b7280;
         margin-top: 3rem;
     }
+    .stButton > button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.4rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+        display: block;
+        margin: 0 auto;
+    }
+    .stButton > button:hover {
+        background-color: #1d4ed8;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -66,21 +82,31 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("👤 Dibuat oleh: Tim KADEM UNIDA Gontor")
 
-# Konten Beranda
+# Judul Halaman
 st.markdown('<div class="title">Selamat Datang di Aplikasi KADEM</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">(Pemilihan Kandidat DEMA)</div>', unsafe_allow_html=True)
 
+# Logo di tengah dengan animasi bounce
 st.markdown("""
 <div class="logo-container">
     <img src="https://raw.githubusercontent.com/fauzanafif/KADEM/main/assets/logo-dema.png" width="280"/>
 </div>
 """, unsafe_allow_html=True)
 
+# Tombol Start Now tepat di bawah logo dan di tengah
+st.markdown("<div style='margin-top: -0.5rem'></div>", unsafe_allow_html=True)
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("🚀 Start Now"):
+        st.switch_page("pages/dashboard.py")
+
+# Informasi tambahan
 st.markdown('<div class="section-title">🧠 Pemilihan Bijak Sesuai Data</div>', unsafe_allow_html=True)
 st.write("""
 Pemimpin yang baik lahir dari proses yang baik. KADEM memastikan proses ini berbasis pada **nilai-nilai Islami** dan **data yang terukur**, agar keputusan yang diambil benar-benar mencerminkan _maslahat_ untuk semua.
 """)
 
+# Dalil di tengah
 st.markdown("""
 <div class="dalil">
 💬 <b>“Apabila suatu urusan diserahkan kepada yang bukan ahlinya, maka tunggulah kehancurannya.”</b><br/>
@@ -88,4 +114,5 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Footer
 st.markdown('<div class="footer">© 2025 KADEM - UNIDA Gontor</div>', unsafe_allow_html=True)
