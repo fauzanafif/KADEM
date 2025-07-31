@@ -6,19 +6,48 @@ import io
 
 st.set_page_config(page_title="Dashboard KADEM", layout="wide")
 
-st.markdown(
-    """
+# CSS styling sidebar
+st.markdown("""
     <style>
     .stApp {
         background-color: #f0f6ff;
     }
-    .stTitle {
-        color: #003366;
+    section[data-testid="stSidebar"] {
+        background-color: #e0ecff;
+        padding: 1.5rem;
     }
     </style>
-    """, unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
+with st.sidebar:
+    # Logo KADEM
+    st.image("https://raw.githubusercontent.com/fauzanafif/KADEM/main/assets/logo-dema.png", width=140)
+
+    # Informasi penting
+    st.markdown("#### 📌 Ketentuan Penilaian")
+    st.info("🔒 Demi kelancaran dan ketetapan kriteria, **formulir penilaian hanya dapat diisi sekali**. Tidak ada proses *update* setelah disimpan.")
+
+    st.markdown("---")
+    st.markdown("📄 **Unduh Soal Pertanyaan Penilaian**")
+
+    with open("assets\soal_penilaian_kandidat.pdf", "rb") as pdf_file:
+        st.download_button(
+            label="📥 Unduh PDF",
+            data=pdf_file,
+            file_name="soal_penilaian_kandidat.pdf",
+            mime="application/pdf"
+        )
+
+    with open("assets\soal_penilaian_kandidat.pdf", "rb") as docx_file:
+        st.download_button(
+            label="📥 Unduh DOCX",
+            data=docx_file,
+            file_name="soal_penilaian_kandidat.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+
+    st.markdown("---")
+    st.markdown("🧑‍💼 **Dikembangkan oleh:** Tim KADEM UNIDA Gontor")
 st.title("🎓 Dashboard Penilaian Kandidat DEMA")
 
 # Inisialisasi penyimpanan kandidat
@@ -26,8 +55,9 @@ if 'kandidat_list' not in st.session_state:
     st.session_state.kandidat_list = []
 
 st.subheader("📝 Form Penilaian Kandidat")
+st.markdown("🧑‍💼 Unduh soal yang di sediakan sistem di bagian sidebar.!")
 
-# Pilih untuk update
+# Pilih kandidat untuk update
 selected_nim = None
 if st.session_state.kandidat_list:
     nims = [k["NIM"] for k in st.session_state.kandidat_list]
@@ -36,6 +66,7 @@ if st.session_state.kandidat_list:
 # Ambil data jika update
 kandidat_terpilih = next((k for k in st.session_state.kandidat_list if k["NIM"] == selected_nim), None)
 
+# Form Input
 with st.form("form_penilaian"):
     col1, col2, col3 = st.columns(3)
 
@@ -46,7 +77,7 @@ with st.form("form_penilaian"):
 
     with col2:
         jurusan = st.selectbox("Fakultas/Jurusan", ["SAINTEK", "SYARIAH", "TARBIYAH", "ADAB", "EKONOMI"],
-                               index=["SAINTEK", "SYARIAH", "TARBIYAH", "ADAB", "EKONOMI"].index(kandidat_terpilih["Fakultas"]) if kandidat_terpilih else 0)
+                               index=["SAINTEK", "SYARIAH", "TARBIYAH", "HUMANIORA", "FEM"].index(kandidat_terpilih["Fakultas"]) if kandidat_terpilih else 0)
         asrama = st.text_input("Asrama", kandidat_terpilih["Asrama"] if kandidat_terpilih else "")
 
     with col3:
@@ -84,7 +115,7 @@ with st.form("form_penilaian"):
             st.session_state.kandidat_list.append(kandidat_baru)
             st.success(f"✅ Data kandidat '{nama}' berhasil ditambahkan.")
 
-# Tampilkan Ranking
+# Ranking Tabel
 st.markdown("---")
 st.subheader("📊 Ranking Kandidat")
 
@@ -97,7 +128,7 @@ if st.session_state.kandidat_list:
 
     st.dataframe(df_sorted.style.set_properties(**{'text-align': 'center'}), use_container_width=True)
 
-    # Download Excel
+    # Download tabel
     excel_buffer = io.BytesIO()
     df_sorted.to_excel(excel_buffer, index=False)
     excel_buffer.seek(0)
@@ -108,7 +139,7 @@ if st.session_state.kandidat_list:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-    # Visualisasi
+    # Grafik Skor Total
     col1, col2 = st.columns(2)
 
     with col1:
@@ -137,7 +168,6 @@ if st.session_state.kandidat_list:
         mean_scores += mean_scores[:1]
 
         angles = np.linspace(0, 2 * np.pi, len(categories) + 1, endpoint=True)
-
         fig, ax = plt.subplots(figsize=(4, 4), subplot_kw=dict(polar=True))
         ax.plot(angles, mean_scores, 'o-', linewidth=2, color='blue')
         ax.fill(angles, mean_scores, alpha=0.25, color='blue')
@@ -155,6 +185,5 @@ if st.session_state.kandidat_list:
             file_name="kontribusi_kriteria.png",
             mime="image/png"
         )
-
 else:
     st.info("Belum ada data kandidat yang dimasukkan.")
