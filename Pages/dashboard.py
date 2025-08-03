@@ -30,15 +30,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("📄 **Unduh Soal Pertanyaan Penilaian**")
 
-    with open("assets\soal_penilaian_kandidat.pdf", "rb") as pdf_file:
-        st.download_button(
-            label="📥 Unduh PDF",
-            data=pdf_file,
-            file_name="soal_penilaian_kandidat.pdf",
-            mime="application/pdf"
-        )
-
-    with open("assets\soal_penilaian_kandidat.pdf", "rb") as docx_file:
+    with open("assets/soal_penilaian_kandidat.docx", "rb") as docx_file:
         st.download_button(
             label="📥 Unduh DOCX",
             data=docx_file,
@@ -48,6 +40,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("🧑‍💼 **Dikembangkan oleh:** Tim KADEM UNIDA Gontor")
+
 st.title("🎓 Dashboard Penilaian Kandidat DEMA")
 
 # Inisialisasi penyimpanan kandidat
@@ -55,7 +48,7 @@ if 'kandidat_list' not in st.session_state:
     st.session_state.kandidat_list = []
 
 st.subheader("📝 Form Penilaian Kandidat")
-st.markdown("🧑‍💼 Unduh soal yang di sediakan sistem di bagian sidebar.!")
+st.markdown("🧑‍💼 Unduh soal yang disediakan sistem di bagian sidebar.")
 
 # Pilih kandidat untuk update
 selected_nim = None
@@ -66,6 +59,14 @@ if st.session_state.kandidat_list:
 # Ambil data jika update
 kandidat_terpilih = next((k for k in st.session_state.kandidat_list if k["NIM"] == selected_nim), None)
 
+# List Fakultas dan Prodi UNIDA Gontor (ringkas)
+fakultas_unida = ["Tarbiyah", "Syariah", "Ushuluddin", "Ekonomi dan Manajemen", "Sains dan Teknologi", "Humaniora","ILKES"]
+prodi_unida = [
+    "Pendidikan Agama Islam", "Pendidikan Bahasa Arab", "Pendidikan Bahasa Inggris",
+    "Hukum Ekonomi Syariah", "Ilmu Al-Qur'an dan Tafsir", "Perbandingan Mazhab dan Hukum",
+    "Ekonomi Islam", "Manajemen", "Teknik Informatika", "Ilmu Komunikasi", "Kedokteran","Agroteknologi", "Teknik Industri Pertanian"
+]
+
 # Form Input
 with st.form("form_penilaian"):
     col1, col2, col3 = st.columns(3)
@@ -73,11 +74,12 @@ with st.form("form_penilaian"):
     with col1:
         nama = st.text_input("Nama Kandidat", kandidat_terpilih["Nama"] if kandidat_terpilih else "")
         nim = st.text_input("NIM", kandidat_terpilih["NIM"] if kandidat_terpilih else "")
-        prodi = st.text_input("Program Studi", kandidat_terpilih["Prodi"] if kandidat_terpilih else "")
+        prodi = st.selectbox("Program Studi", prodi_unida,
+                             index=prodi_unida.index(kandidat_terpilih["Prodi"]) if kandidat_terpilih else 0)
 
     with col2:
-        jurusan = st.selectbox("Fakultas/Jurusan", ["SAINTEK", "SYARIAH", "TARBIYAH", "ADAB", "EKONOMI"],
-                               index=["SAINTEK", "SYARIAH", "TARBIYAH", "HUMANIORA", "FEM"].index(kandidat_terpilih["Fakultas"]) if kandidat_terpilih else 0)
+        jurusan = st.selectbox("Fakultas", fakultas_unida,
+                               index=fakultas_unida.index(kandidat_terpilih["Fakultas"]) if kandidat_terpilih else 0)
         asrama = st.text_input("Asrama", kandidat_terpilih["Asrama"] if kandidat_terpilih else "")
 
     with col3:
