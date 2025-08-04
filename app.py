@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_extras.switch_page_button import switch_page
 
+
 # Konfigurasi halaman utama
 st.set_page_config(
     page_title="KADEM | Beranda",
@@ -97,7 +98,7 @@ st.markdown("""
 col1, col2, col3 = st.columns([4, 1, 4])
 with col2:
     if st.button("🚀 Mulai", key="start_btn"):
-        switch_page("dashboard")
+        switch_page("Dashboard")
 
 # Konten pendukung
 st.markdown('<div class="section-title">🧠 Pemilihan Bijak Sesuai Data</div>', unsafe_allow_html=True)
