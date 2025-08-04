@@ -1,6 +1,4 @@
 import streamlit as st
-from streamlit_extras.switch_page_button import switch_page
-
 
 # Konfigurasi halaman utama
 st.set_page_config(
@@ -40,20 +38,6 @@ st.markdown("""
         animation: bounce 2s infinite;
         margin-bottom: 1.5rem;
     }
-    .start-button {
-        background-color: #2563eb;
-        color: white;
-        border: none;
-        padding: 0.4rem 1.2rem;
-        font-size: 0.85rem;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-top: 0.7rem;
-    }
-    .start-button:hover {
-        background-color: #1e40af;
-    }
     .dalil {
         font-style: italic;
         text-align: center;
@@ -72,6 +56,19 @@ st.markdown("""
         color: #6b7280;
         margin-top: 3rem;
     }
+    .start-button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.3rem;
+        font-size: 0.95rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .start-button:hover {
+        background-color: #1e40af;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -87,25 +84,29 @@ with st.sidebar:
 st.markdown('<div class="title">Selamat Datang di Aplikasi KADEM</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">(Pemilihan Kandidat DEMA)</div>', unsafe_allow_html=True)
 
-# Logo + Tombol Mulai di tengah
+# Logo + Tombol Mulai
 st.markdown("""
 <div class="logo-container">
     <img src="https://raw.githubusercontent.com/fauzanafif/KADEM/main/assets/logo-dema.png" width="280"/>
 </div>
 """, unsafe_allow_html=True)
 
-# Tombol kecil di tengah bawah logo
+# Tombol link ke Dashboard (tanpa switch_page)
 col1, col2, col3 = st.columns([4, 1, 4])
 with col2:
-    if st.button("🚀 Mulai", key="start_btn"):
-        switch_page("Dashboard")
+    st.markdown("""
+        <a href="/Dashboard" target="_self">
+            <button class="start-button">🚀 Mulai</button>
+        </a>
+    """, unsafe_allow_html=True)
 
-# Konten pendukung
+# Penjelasan dan motivasi
 st.markdown('<div class="section-title">🧠 Pemilihan Bijak Sesuai Data</div>', unsafe_allow_html=True)
 st.write("""
 Pemimpin yang baik lahir dari proses yang baik. KADEM memastikan proses ini berbasis pada **nilai-nilai Islami** dan **data yang terukur**, agar keputusan yang diambil benar-benar mencerminkan _maslahat_ untuk semua.
 """)
 
+# Hadis motivasi
 st.markdown("""
 <div class="dalil">
 💬 <b>“Apabila suatu urusan diserahkan kepada yang bukan ahlinya, maka tunggulah kehancurannya.”</b><br/>
@@ -113,4 +114,5 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Footer
 st.markdown('<div class="footer">© 2025 KADEM - UNIDA Gontor</div>', unsafe_allow_html=True)
