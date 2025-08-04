@@ -189,3 +189,4 @@ if st.session_state.kandidat_list:
         )
 else:
     st.info("Belum ada data kandidat yang dimasukkan.")
+##hahaha
