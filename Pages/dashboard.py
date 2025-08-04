@@ -6,21 +6,6 @@ import io
 
 st.set_page_config(page_title="Dashboard KADEM", layout="wide")
 
-# Fungsi metode SAW
-def hitung_saw(df, bobot):
-    kriteria = ["IPK", "Organisasi", "Kepemimpinan", "Akhlak"]
-    df_norm = df.copy()
-
-    for k in kriteria:
-        max_val = df[k].max()
-        df_norm[k] = df[k] / max_val if max_val != 0 else 0
-
-    df["Skor SAW"] = (df_norm["IPK"] * bobot["IPK"] +
-                      df_norm["Organisasi"] * bobot["Organisasi"] +
-                      df_norm["Kepemimpinan"] * bobot["Kepemimpinan"] +
-                      df_norm["Akhlak"] * bobot["Akhlak"]).round(4)
-    return df
-
 # CSS styling sidebar
 st.markdown("""
     <style>
@@ -35,122 +20,151 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
+    # Logo KADEM
     st.image("https://raw.githubusercontent.com/fauzanafif/KADEM/main/assets/logo-dema.png", width=140)
-    st.markdown("#### \U0001F4CC Ketentuan Penilaian")
-    st.info("\U0001F512 Demi kelancaran dan ketetapan kriteria, **formulir penilaian hanya dapat diisi sekali**. Tidak ada proses *update* setelah disimpan.")
+
+    # Informasi penting
+    st.markdown("#### 📌 Ketentuan Penilaian")
+    st.info("🔒 Demi kelancaran dan ketetapan kriteria, **formulir penilaian hanya dapat diisi sekali**. Tidak ada proses *update* setelah disimpan.")
 
     st.markdown("---")
-    st.markdown("\U0001F4C4 **Unduh Soal Pertanyaan Penilaian**")
+    st.markdown("📄 **Unduh Soal Pertanyaan Penilaian**")
+
     with open("assets/soal_penilaian_kandidat.docx", "rb") as docx_file:
         st.download_button(
-            label="\U0001F4E5 Unduh DOCX",
+            label="📥 Unduh DOCX",
             data=docx_file,
             file_name="soal_penilaian_kandidat.docx",
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
 
     st.markdown("---")
-    st.markdown("\U0001F9D1‍\U0001F4BC **Dikembangkan oleh:** Tim KADEM UNIDA Gontor")
+    st.markdown("🧑‍💼 **Dikembangkan oleh:** Tim KADEM UNIDA Gontor")
 
-st.title("\U0001F393 Dashboard Penilaian Kandidat DEMA")
+st.title("🎓 Dashboard Penilaian Kandidat DEMA")
 
+# Inisialisasi penyimpanan kandidat
 if 'kandidat_list' not in st.session_state:
     st.session_state.kandidat_list = []
 
-st.subheader("\U0001F4DD Form Penilaian Kandidat")
-st.markdown("\U0001F9D1‍\U0001F4BC Unduh soal yang disediakan sistem di bagian sidebar.")
+st.subheader("📝 Form Penilaian Kandidat")
+st.markdown("🧑‍💼 Unduh soal yang disediakan sistem di bagian sidebar.")
 
-fakultas_unida = ["Tarbiyah", "Syariah", "Ushuluddin", "Ekonomi dan Manajemen", "Sains dan Teknologi", "Humaniora", "ILKES"]
+# Pilih kandidat untuk update
+selected_nim = None
+if st.session_state.kandidat_list:
+    nims = [k["NIM"] for k in st.session_state.kandidat_list]
+    selected_nim = st.selectbox("Pilih NIM untuk Update (kosongkan jika tambah baru)", [""] + nims)
+
+# Ambil data jika update
+kandidat_terpilih = next((k for k in st.session_state.kandidat_list if k["NIM"] == selected_nim), None)
+
+# List Fakultas dan Prodi UNIDA Gontor (ringkas)
+fakultas_unida = ["Tarbiyah", "Syariah", "Ushuluddin", "Ekonomi dan Manajemen", "Sains dan Teknologi", "Humaniora","ILKES"]
 prodi_unida = [
     "Pendidikan Agama Islam", "Pendidikan Bahasa Arab", "Pendidikan Bahasa Inggris",
     "Hukum Ekonomi Syariah", "Ilmu Al-Qur'an dan Tafsir", "Perbandingan Mazhab dan Hukum",
-    "Ekonomi Islam", "Manajemen", "Teknik Informatika", "Ilmu Komunikasi", "Kedokteran",
-    "Agroteknologi", "Teknik Industri Pertanian"
+    "Ekonomi Islam", "Manajemen", "Teknik Informatika", "Ilmu Komunikasi", "Kedokteran","Agroteknologi", "Teknik Industri Pertanian"
 ]
 
+# Form Input
 with st.form("form_penilaian"):
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        nama = st.text_input("Nama Kandidat")
-        nim = st.text_input("NIM")
-        prodi = st.selectbox("Program Studi", prodi_unida)
+        nama = st.text_input("Nama Kandidat", kandidat_terpilih["Nama"] if kandidat_terpilih else "")
+        nim = st.text_input("NIM", kandidat_terpilih["NIM"] if kandidat_terpilih else "")
+        prodi = st.selectbox("Program Studi", prodi_unida,
+                             index=prodi_unida.index(kandidat_terpilih["Prodi"]) if kandidat_terpilih else 0)
 
     with col2:
-        jurusan = st.selectbox("Fakultas", fakultas_unida)
-        asrama = st.text_input("Asrama")
+        jurusan = st.selectbox("Fakultas", fakultas_unida,
+                               index=fakultas_unida.index(kandidat_terpilih["Fakultas"]) if kandidat_terpilih else 0)
+        asrama = st.text_input("Asrama", kandidat_terpilih["Asrama"] if kandidat_terpilih else "")
 
     with col3:
-        ipk = st.number_input("Skor IPK (1-5)", 1, 5, 1)
-        organisasi = st.number_input("Skor Pengalaman Organisasi (1-5)", 1, 5, 1)
-        kepemimpinan = st.number_input("Skor Kepemimpinan (1-5)", 1, 5, 1)
-        akhlak = st.number_input("Skor Akhlak (1-5)", 1, 5, 1)
+        ipk = st.number_input("Skor IPK (1-5)", 1, 5, int(kandidat_terpilih["IPK"]) if kandidat_terpilih else 1)
+        organisasi = st.number_input("Skor Pengalaman Organisasi (1-5)", 1, 5, int(kandidat_terpilih["Organisasi"]) if kandidat_terpilih else 1)
+        kepemimpinan = st.number_input("Skor Kepemimpinan (1-5)", 1, 5, int(kandidat_terpilih["Kepemimpinan"]) if kandidat_terpilih else 1)
+        akhlak = st.number_input("Skor Akhlak (1-5)", 1, 5, int(kandidat_terpilih["Akhlak"]) if kandidat_terpilih else 1)
 
-    submitted = st.form_submit_button("\u2705 Simpan Data")
+    tombol_label = "🔄 Update Data" if kandidat_terpilih else "✅ Simpan Data"
+    submitted = st.form_submit_button(tombol_label)
 
     if submitted:
-        if not nim or not nama:
-            st.warning("⚠️ NIM dan Nama wajib diisi.")
-        elif any(k["NIM"] == nim for k in st.session_state.kandidat_list):
-            st.error(f"❌ NIM {nim} sudah pernah diinput. Data tidak dapat ditambahkan ulang.")
-        else:
-            bobot = {"IPK": 0.25, "Organisasi": 0.25, "Kepemimpinan": 0.25, "Akhlak": 0.25}
-            skor_total = round((ipk / 5) * bobot["IPK"] + (organisasi / 5) * bobot["Organisasi"] +
-                               (kepemimpinan / 5) * bobot["Kepemimpinan"] + (akhlak / 5) * bobot["Akhlak"], 4)
+        bobot = {"IPK": 0.25, "Organisasi": 0.25, "Kepemimpinan": 0.25, "Akhlak": 0.25}
+        skor_total = round(ipk * bobot["IPK"] + organisasi * bobot["Organisasi"] +
+                           kepemimpinan * bobot["Kepemimpinan"] + akhlak * bobot["Akhlak"], 2)
 
-            kandidat_baru = {
-                "Nama": nama,
-                "NIM": nim,
-                "Prodi": prodi,
-                "Fakultas": jurusan,
-                "Asrama": asrama,
-                "IPK": ipk,
-                "Organisasi": organisasi,
-                "Kepemimpinan": kepemimpinan,
-                "Akhlak": akhlak,
-                "Skor Total": skor_total
-            }
+        kandidat_baru = {
+            "Nama": nama,
+            "NIM": nim,
+            "Prodi": prodi,
+            "Fakultas": jurusan,
+            "Asrama": asrama,
+            "IPK": ipk,
+            "Organisasi": organisasi,
+            "Kepemimpinan": kepemimpinan,
+            "Akhlak": akhlak,
+            "Skor Total": skor_total
+        }
+
+        if kandidat_terpilih:
+            index = next(i for i, k in enumerate(st.session_state.kandidat_list) if k["NIM"] == selected_nim)
+            st.session_state.kandidat_list[index] = kandidat_baru
+            st.success(f"🔄 Data kandidat '{nama}' berhasil di-*update*.")
+        else:
             st.session_state.kandidat_list.append(kandidat_baru)
             st.success(f"✅ Data kandidat '{nama}' berhasil ditambahkan.")
 
 # Ranking Tabel
 st.markdown("---")
-st.subheader("\U0001F4CA Ranking Kandidat (Metode SAW)")
+st.subheader("📊 Ranking Kandidat")
 
 if st.session_state.kandidat_list:
     df = pd.DataFrame(st.session_state.kandidat_list)
-    bobot = {"IPK": 0.25, "Organisasi": 0.25, "Kepemimpinan": 0.25, "Akhlak": 0.25}
-    df = hitung_saw(df, bobot)
-    df_sorted = df.sort_values(by="Skor SAW", ascending=False).reset_index(drop=True)
+    df_sorted = df.sort_values(by="Skor Total", ascending=False).reset_index(drop=True)
 
-    emojis = ['\U0001F947', '\U0001F948', '\U0001F949'] + ['\u2B50'] * (len(df_sorted) - 3)
+    emojis = ['🥇', '🥈', '🥉'] + ['⭐'] * (len(df_sorted) - 3)
     df_sorted.insert(0, "Ranking", emojis[:len(df_sorted)])
 
     st.dataframe(df_sorted.style.set_properties(**{'text-align': 'center'}), use_container_width=True)
 
+    # Download tabel
     excel_buffer = io.BytesIO()
     df_sorted.to_excel(excel_buffer, index=False)
     excel_buffer.seek(0)
     st.download_button(
-        label="\U0001F4E5 Unduh Tabel Ranking (Excel)",
+        label="📥 Unduh Tabel Ranking (Excel)",
         data=excel_buffer,
-        file_name="ranking_kandidat_saw.xlsx",
+        file_name="ranking_kandidat.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
+    # Grafik Skor Total
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("\U0001F4C8 Grafik Skor SAW per Kandidat")
+        st.subheader("📈 Grafik Skor per Kandidat")
         fig2, ax2 = plt.subplots(figsize=(5, 3))
-        ax2.bar(df_sorted["Nama"], df_sorted["Skor SAW"], color="#3399ff")
-        ax2.set_ylabel("Skor SAW")
-        ax2.set_title("Skor SAW per Kandidat")
+        ax2.bar(df_sorted["Nama"], df_sorted["Skor Total"], color="#3399ff")
+        ax2.set_ylabel("Skor Total")
+        ax2.set_title("Skor Total per Kandidat")
         plt.xticks(rotation=45)
         st.pyplot(fig2)
 
+        bar_img = io.BytesIO()
+        fig2.savefig(bar_img, format="png", bbox_inches="tight")
+        bar_img.seek(0)
+        st.download_button(
+            label="📸 Unduh Grafik Skor (PNG)",
+            data=bar_img,
+            file_name="grafik_skor_total.png",
+            mime="image/png"
+        )
+
     with col2:
-        st.subheader("\U0001F4CA Rata-Rata Kontribusi Kriteria")
+        st.subheader("📊 Rata-Rata Kontribusi Kriteria")
         categories = ["IPK", "Organisasi", "Kepemimpinan", "Akhlak"]
         mean_scores = df[categories].mean().values.tolist()
         mean_scores += mean_scores[:1]
@@ -163,5 +177,15 @@ if st.session_state.kandidat_list:
         ax.set_title("Kontribusi Kriteria")
         ax.grid(True)
         st.pyplot(fig)
+
+        radar_img = io.BytesIO()
+        fig.savefig(radar_img, format="png", bbox_inches="tight")
+        radar_img.seek(0)
+        st.download_button(
+            label="📸 Unduh Radar Chart (PNG)",
+            data=radar_img,
+            file_name="kontribusi_kriteria.png",
+            mime="image/png"
+        )
 else:
     st.info("Belum ada data kandidat yang dimasukkan.")
