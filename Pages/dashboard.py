@@ -25,7 +25,7 @@ with st.sidebar:
 
     # Informasi penting
     st.markdown("#### 📌 Ketentuan Penilaian")
-    st.info("🔒 Demi kelancaran dan ketetapan kriteria, **formulir penilaian hanya dapat diisi sekali**. Tidak ada proses *update* setelah disimpan.")
+    st.info("🔒 Formulir penilaian hanya dapat diisi sekali. Tidak dapat diubah setelah disimpan.")
 
     st.markdown("---")
     st.markdown("📄 **Unduh Soal Pertanyaan Penilaian**")
@@ -50,46 +50,35 @@ if 'kandidat_list' not in st.session_state:
 st.subheader("📝 Form Penilaian Kandidat")
 st.markdown("🧑‍💼 Unduh soal yang disediakan sistem di bagian sidebar.")
 
-# Pilih kandidat untuk update
-selected_nim = None
-if st.session_state.kandidat_list:
-    nims = [k["NIM"] for k in st.session_state.kandidat_list]
-    selected_nim = st.selectbox("Pilih NIM untuk Update (kosongkan jika tambah baru)", [""] + nims)
-
-# Ambil data jika update
-kandidat_terpilih = next((k for k in st.session_state.kandidat_list if k["NIM"] == selected_nim), None)
-
-# List Fakultas dan Prodi UNIDA Gontor (ringkas)
-fakultas_unida = ["Tarbiyah", "Syariah", "Ushuluddin", "Ekonomi dan Manajemen", "Sains dan Teknologi", "Humaniora","ILKES"]
+# List Fakultas dan Prodi UNIDA Gontor
+fakultas_unida = ["Tarbiyah", "Syariah", "Ushuluddin", "Ekonomi dan Manajemen", "Sains dan Teknologi", "Humaniora", "ILKES"]
 prodi_unida = [
     "Pendidikan Agama Islam", "Pendidikan Bahasa Arab", "Pendidikan Bahasa Inggris",
     "Hukum Ekonomi Syariah", "Ilmu Al-Qur'an dan Tafsir", "Perbandingan Mazhab dan Hukum",
-    "Ekonomi Islam", "Manajemen", "Teknik Informatika", "Ilmu Komunikasi", "Kedokteran","Agroteknologi", "Teknik Industri Pertanian"
+    "Ekonomi Islam", "Manajemen", "Teknik Informatika", "Ilmu Komunikasi", "Kedokteran",
+    "Agroteknologi", "Teknik Industri Pertanian"
 ]
 
-# Form Input
+# Form Input Kandidat Baru
 with st.form("form_penilaian"):
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        nama = st.text_input("Nama Kandidat", kandidat_terpilih["Nama"] if kandidat_terpilih else "")
-        nim = st.text_input("NIM", kandidat_terpilih["NIM"] if kandidat_terpilih else "")
-        prodi = st.selectbox("Program Studi", prodi_unida,
-                             index=prodi_unida.index(kandidat_terpilih["Prodi"]) if kandidat_terpilih else 0)
+        nama = st.text_input("Nama Kandidat")
+        nim = st.text_input("NIM")
+        prodi = st.selectbox("Program Studi", prodi_unida)
 
     with col2:
-        jurusan = st.selectbox("Fakultas", fakultas_unida,
-                               index=fakultas_unida.index(kandidat_terpilih["Fakultas"]) if kandidat_terpilih else 0)
-        asrama = st.text_input("Asrama", kandidat_terpilih["Asrama"] if kandidat_terpilih else "")
+        jurusan = st.selectbox("Fakultas", fakultas_unida)
+        asrama = st.text_input("Asrama")
 
     with col3:
-        ipk = st.number_input("Skor IPK (1-5)", 1, 5, int(kandidat_terpilih["IPK"]) if kandidat_terpilih else 1)
-        organisasi = st.number_input("Skor Pengalaman Organisasi (1-5)", 1, 5, int(kandidat_terpilih["Organisasi"]) if kandidat_terpilih else 1)
-        kepemimpinan = st.number_input("Skor Kepemimpinan (1-5)", 1, 5, int(kandidat_terpilih["Kepemimpinan"]) if kandidat_terpilih else 1)
-        akhlak = st.number_input("Skor Akhlak (1-5)", 1, 5, int(kandidat_terpilih["Akhlak"]) if kandidat_terpilih else 1)
+        ipk = st.number_input("Skor IPK (1-5)", 1, 5, 1)
+        organisasi = st.number_input("Skor Pengalaman Organisasi (1-5)", 1, 5, 1)
+        kepemimpinan = st.number_input("Skor Kepemimpinan (1-5)", 1, 5, 1)
+        akhlak = st.number_input("Skor Akhlak (1-5)", 1, 5, 1)
 
-    tombol_label = "🔄 Update Data" if kandidat_terpilih else "✅ Simpan Data"
-    submitted = st.form_submit_button(tombol_label)
+    submitted = st.form_submit_button("✅ Simpan Data")
 
     if submitted:
         bobot = {"IPK": 0.25, "Organisasi": 0.25, "Kepemimpinan": 0.25, "Akhlak": 0.25}
@@ -109,13 +98,8 @@ with st.form("form_penilaian"):
             "Skor Total": skor_total
         }
 
-        if kandidat_terpilih:
-            index = next(i for i, k in enumerate(st.session_state.kandidat_list) if k["NIM"] == selected_nim)
-            st.session_state.kandidat_list[index] = kandidat_baru
-            st.success(f"🔄 Data kandidat '{nama}' berhasil di-*update*.")
-        else:
-            st.session_state.kandidat_list.append(kandidat_baru)
-            st.success(f"✅ Data kandidat '{nama}' berhasil ditambahkan.")
+        st.session_state.kandidat_list.append(kandidat_baru)
+        st.success(f"✅ Data kandidat '{nama}' berhasil ditambahkan.")
 
 # Ranking Tabel
 st.markdown("---")
@@ -189,4 +173,3 @@ if st.session_state.kandidat_list:
         )
 else:
     st.info("Belum ada data kandidat yang dimasukkan.")
-##hahaha
