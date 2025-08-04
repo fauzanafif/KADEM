@@ -97,7 +97,7 @@ st.markdown("""
 col1, col2, col3 = st.columns([4, 1, 4])
 with col2:
     if st.button("🚀 Mulai", key="start_btn"):
-        switch_page("Dashboard")
+        switch_page("dashboard")
 
 # Konten pendukung
 st.markdown('<div class="section-title">🧠 Pemilihan Bijak Sesuai Data</div>', unsafe_allow_html=True)
